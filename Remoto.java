@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 public class Remoto {
     private ServerSocket s, s1;
     private VideoStreamer video;
+    private KeyboardHandler kb;
     private int port=8001;
     public Remoto() {
         try{
@@ -38,8 +39,11 @@ public class Remoto {
     public void connect() {
         try {
             Socket cl = s.accept();
+            Socket cl1= s1.accept();
             video=new VideoStreamer(cl);
             video.start();
+            kb=new KeyboardHandler(cl);
+            kb.start();
         } catch (IOException ex) {
             Logger.getLogger(Remoto.class.getName()).log(Level.SEVERE, null, ex);
         }
