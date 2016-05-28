@@ -5,8 +5,10 @@
  */
 package proyectoremoto;
 
+import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -21,41 +23,25 @@ import javax.swing.ImageIcon;
  * @author MiguelAngel
  */
 public class Remoto {
-    private ServerSocket s;
-    private Robot robot;
-    private Rectangle r;
-    private ObjectOutputStream oos;
-    private Socket cl;
-    public Remoto(){
-        r=new Rectangle(1024,720);
-        try {
-            s=new ServerSocket(8001);
+    private ServerSocket s, s1;
+    private VideoStreamer video;
+    private int port=8001;
+    public Remoto() {
+        try{
+            s = new ServerSocket(port);
+            s1= new ServerSocket(port+1);
         } catch (IOException ex) {
             Logger.getLogger(Remoto.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void connect(){
-        while(true){
-            try {
-                cl=s.accept();
-                oos=new ObjectOutputStream(cl.getOutputStream());
-            } catch (IOException ex) {
-                Logger.getLogger(Remoto.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-    public void streamVideo(){
-        while(true){
-             BufferedImage image = robot.createScreenCapture(r);
-             ImageIcon imageIcon = new ImageIcon(image);
-             try {
-                oos.writeObject(imageIcon);
-                oos.flush();
-                System.out.println("New screenshot sent");
-            } catch (IOException ex) {
-               ex.printStackTrace();
-            }
 
+    public void connect() {
+        try {
+            Socket cl = s.accept();
+            video=new VideoStreamer(cl);
+            video.start();
+        } catch (IOException ex) {
+            Logger.getLogger(Remoto.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
