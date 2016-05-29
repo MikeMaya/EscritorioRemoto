@@ -42,8 +42,12 @@ public class Remoto {
             Socket cl1= s1.accept();
             video=new VideoStreamer(cl);
             video.start();
-            kb=new KeyboardHandler(cl);
-            kb.start();
+            kb=new KeyboardHandler(cl1);
+            kb.start(); 
+            while(kb.isAlive());
+            video.detener();
+            s.close();
+            s1.close();
         } catch (IOException ex) {
             Logger.getLogger(Remoto.class.getName()).log(Level.SEVERE, null, ex);
         }
