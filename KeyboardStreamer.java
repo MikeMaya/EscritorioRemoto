@@ -22,21 +22,33 @@ import javax.swing.JPanel;
  * @author MiguelAngel
  */
 public class KeyboardStreamer extends Thread {
-
+    private double scaleX, scaleY;
     private Socket cl;
     private JPanel panel;
     private ObjectOutputStream oos;
 
-    public KeyboardStreamer(Socket s, JPanel p) {
+    public KeyboardStreamer(Socket s, JPanel p, int wR, int hR) {
         try {
             cl = s;
             oos = new ObjectOutputStream(cl.getOutputStream());
             panel = p;
+            scaleX = (double) wR / (double) panel.getWidth();
+            scaleY = (double) hR / (double) panel.getHeight();
+            System.out.println(scaleX + " " + scaleY + " " + wR + " " + hR);
         } catch (IOException ex) {
             Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    public void detener(){
+        try {
+            oos.writeInt(6);
+            oos.flush();
+            oos.close();
+            cl.close();
+        } catch (IOException ex) {
+            Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     @Override
     public void run() {
         panel.addKeyListener(new KeyListener() {
@@ -48,12 +60,10 @@ public class KeyboardStreamer extends Thread {
             @Override
             public void keyPressed(KeyEvent e) {
                 try {
-                    synchronized (oos) {
-                        oos.writeInt(1);
-                        oos.flush();
-                        oos.writeInt(e.getKeyCode());
-                        oos.flush();
-                    }
+                    oos.writeInt(1);
+                    oos.flush();
+                    oos.writeInt(e.getKeyCode());
+                    oos.flush();
                 } catch (IOException ex) {
                     Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -76,13 +86,13 @@ public class KeyboardStreamer extends Thread {
             @Override
             public void mouseMoved(MouseEvent e) {
                 try {
-                    synchronized (oos) {
-                        oos.writeInt(3);
-                        oos.flush();
-                        oos.writeInt(e.getX());
-                        oos.writeInt(e.getY());
-                        oos.flush();
-                    }
+
+                    oos.writeInt(3);
+                    oos.flush();
+                    oos.writeInt((int) (e.getX() * scaleX));
+                    oos.flush();
+                    oos.writeInt((int) (e.getY() * scaleY));
+                    oos.flush();
                 } catch (IOException ex) {
                     Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -96,12 +106,11 @@ public class KeyboardStreamer extends Thread {
             @Override
             public void mousePressed(MouseEvent e) {
                 try {
-                    synchronized (oos) {
-                        oos.writeInt(4);
-                        oos.flush();
-                        oos.writeInt(e.getButton());
-                        oos.flush();
-                    }
+
+                    oos.writeInt(4);
+                    oos.flush();
+                    oos.writeInt(e.getButton());
+                    oos.flush();
                 } catch (IOException ex) {
                     Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -110,12 +119,11 @@ public class KeyboardStreamer extends Thread {
             @Override
             public void mouseReleased(MouseEvent e) {
                 try {
-                    synchronized (oos) {
-                        oos.writeInt(5);
-                        oos.flush();
-                        oos.writeInt(e.getButton());
-                        oos.flush();
-                    }
+
+                    oos.writeInt(5);
+                    oos.flush();
+                    oos.writeInt(e.getButton());
+                    oos.flush();
                 } catch (IOException ex) {
                     Logger.getLogger(KeyboardStreamer.class.getName()).log(Level.SEVERE, null, ex);
                 }
